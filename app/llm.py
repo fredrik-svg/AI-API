@@ -29,8 +29,13 @@ def generate_ollama(prompt: str, max_tokens: int = 256, temperature: float = 0.2
         "prompt": prompt,
         "options": {"temperature": temperature, "num_predict": max_tokens}
     }
-    resp = requests.post(f"{settings.OLLAMA_HOST}/api/generate", json=payload, timeout=120)
-    resp.raise_for_status()
+    try:
+        resp = requests.post(
+            f"{settings.OLLAMA_HOST}/api/generate", json=payload, timeout=120
+        )
+        resp.raise_for_status()
+    except requests.RequestException as e:
+        raise RuntimeError("Failed to connect to Ollama host") from e
     text = ""
     for line in resp.iter_lines():
         if not line:
