@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from typing import Optional
@@ -56,7 +56,10 @@ def chat_endpoint(req: ChatReq):
     hits = search(req.message, top_k=req.top_k)
     context = [h["text"] for h in hits]
     prompt = build_rag_prompt(req.message, context)
-    answer = generate(prompt, max_tokens=req.max_tokens, temperature=req.temperature)
+    try:
+        answer = generate(prompt, max_tokens=req.max_tokens, temperature=req.temperature)
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
     return {
         "answer": answer,
         "sources": [{"source": h["source"], "score": h["score"], "chunk_index": h["chunk_index"]} for h in hits]
