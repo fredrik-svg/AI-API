@@ -5,7 +5,7 @@ import os
 load_dotenv()
 
 class Settings(BaseModel):
-    LLM_BACKEND: str = os.getenv("LLM_BACKEND", "llama_cpp")
+    LLM_BACKEND: str = os.getenv("LLM_BACKEND", "ollama")
     LLAMA_MODEL_PATH: str = os.getenv("LLAMA_MODEL_PATH", "./data/models/model.gguf")
     OLLAMA_HOST: str = os.getenv("OLLAMA_HOST", "http://127.0.0.1:11434")
     OLLAMA_MODEL: str = os.getenv("OLLAMA_MODEL", "qwen2.5:1.5b-instruct")

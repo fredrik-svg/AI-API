@@ -67,6 +67,6 @@ http POST http://localhost:8000/chat message="Vad handlar dokumentet om?"
 ```
 
 ## Tips
-- Se till att `.env` är korrekt konfigurerad med rätt backend (`llama_cpp`, `ollama` eller `openai`).
+- Standardbackend är `ollama`, men se till att `.env` är korrekt konfigurerad med önskad backend (`ollama`, `llama_cpp` eller `openai`).
 - Använd små, kvantiserade GGUF-modeller för bästa prestanda på Raspberry Pi.
 
