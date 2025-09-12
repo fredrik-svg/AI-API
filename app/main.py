@@ -1,4 +1,5 @@
 from fastapi import FastAPI, UploadFile, File
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from typing import Optional
 import pathlib, shutil
@@ -7,6 +8,8 @@ from .settings import settings
 from .rag import ingest_url, ingest_file, search, DOCS_DIR
 from .llm import generate, build_rag_prompt
 
+FRONTEND_FILE = pathlib.Path(__file__).parent / "frontend" / "index.html"
+
 app = FastAPI(title="Raspberry Pi LLM + RAG API", version="0.1.0")
 
 class ChatReq(BaseModel):
@@ -14,6 +17,13 @@ class ChatReq(BaseModel):
     top_k: Optional[int] = None
     max_tokens: int = 256
     temperature: float = 0.2
+
+
+@app.get("/", response_class=HTMLResponse)
+def frontend():
+    if FRONTEND_FILE.exists():
+        return HTMLResponse(FRONTEND_FILE.read_text())
+    return HTMLResponse("<h1>Frontend not found</h1>", status_code=404)
 
 @app.get("/health")
 def health():

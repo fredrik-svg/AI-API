@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8" />
+    <title>RAG Frontend</title>
+</head>
+<body>
+    <h1>RAG Frontend</h1>
+
+    <section>
+        <h2>Sök</h2>
+        <form id="search-form">
+            <input type="text" id="search-query" placeholder="Sökfråga" />
+            <button type="submit">Sök</button>
+        </form>
+        <ul id="search-results"></ul>
+    </section>
+
+    <section>
+        <h2>Lägg till URL</h2>
+        <form id="url-form">
+            <input type="text" id="url-input" placeholder="https://" />
+            <button type="submit">Lägg till</button>
+        </form>
+        <div id="url-status"></div>
+    </section>
+
+    <section>
+        <h2>Ladda upp fil</h2>
+        <form id="file-form">
+            <input type="file" id="file-input" />
+            <button type="submit">Ladda upp</button>
+        </form>
+        <div id="file-status"></div>
+    </section>
+
+    <script>
+    document.getElementById('search-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const q = document.getElementById('search-query').value;
+        const res = await fetch(`/search?q=${encodeURIComponent(q)}`);
+        const data = await res.json();
+        const list = document.getElementById('search-results');
+        list.innerHTML = '';
+        data.results.forEach(r => {
+            const li = document.createElement('li');
+            li.textContent = `${r.text} (score: ${r.score.toFixed(3)})`;
+            list.appendChild(li);
+        });
+    });
+
+    document.getElementById('url-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const url = document.getElementById('url-input').value;
+        const res = await fetch('/ingest/url', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url })
+        });
+        const data = await res.json();
+        document.getElementById('url-status').textContent = JSON.stringify(data);
+    });
+
+    document.getElementById('file-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const file = document.getElementById('file-input').files[0];
+        if (!file) return;
+        const formData = new FormData();
+        formData.append('file', file);
+        const res = await fetch('/ingest/file', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await res.json();
+        document.getElementById('file-status').textContent = JSON.stringify(data);
+    });
+    </script>
+</body>
+</html>
