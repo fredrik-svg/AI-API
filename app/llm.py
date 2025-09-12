@@ -39,7 +39,13 @@ def generate_openai(prompt: str, max_tokens: int = 256, temperature: float = 0.2
     headers = {"Authorization": f"Bearer {settings.OPENAI_API_KEY}"}
     data = {
         "model": settings.OPENAI_MODEL,
-        "messages": [{"role": "user", "content": prompt}],
+        "messages": [
+            {
+                "role": "system",
+                "content": "Du är en hjälpsam assistent som alltid svarar på svenska."
+            },
+            {"role": "user", "content": prompt},
+        ],
         "max_tokens": max_tokens,
         "temperature": temperature
     }
@@ -56,7 +62,11 @@ def generate(prompt: str, **kw) -> str:
     return generate_local(prompt, **kw)
 
 def build_rag_prompt(query: str, context_chunks: List[str]) -> str:
-    header = "Du är en hjälpsam svensk assistent. Använd kontexten för att svara kortfattat på svenska. Om du är osäker, säg det.\n\n"
+    header = (
+        "Du är en hjälpsam assistent som alltid svarar på svenska. "
+        "Använd den givna kontexten för att ge korta och korrekta svar. "
+        "Om svaret inte finns i kontexten, säg att du inte vet.\n\n"
+    )
     ctx = "\n\n".join(f"[KÄLLA {i+1}] {ch}" for i, ch in enumerate(context_chunks))
-    user = f"Fråga: {query}\n\nSvara på svenska och citera källnummer när det är passande."
+    user = f"Fråga: {query}\n\nSvara på svenska och citera källnummer när det är relevant."
     return header + "KONTEXT:\n" + ctx + "\n\n" + user
