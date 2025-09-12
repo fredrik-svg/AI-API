@@ -8,6 +8,12 @@
     <h1>RAG Frontend</h1>
 
     <section>
+        <h2>Status</h2>
+        <div id="llm-status">LLM: ok?</div>
+        <div id="ollama-status">Ollama: ok?</div>
+    </section>
+
+    <section>
         <h2>Sök</h2>
         <form id="search-form">
             <input type="text" id="search-query" placeholder="Sökfråga" />
@@ -102,6 +108,20 @@
         const data = await res.json();
         chatLog.innerHTML += `<div><strong>LLM:</strong> ${data.answer}</div>`;
     });
+
+    async function uppdateraStatus() {
+        try {
+            const res = await fetch('/health');
+            const data = await res.json();
+            document.getElementById('llm-status').textContent = `LLM-backend (${data.backend}): ${data.llm ? 'OK' : 'Fel'}`;
+            document.getElementById('ollama-status').textContent = `Ollama: ${data.ollama ? 'OK' : 'Fel'}`;
+        } catch (err) {
+            document.getElementById('llm-status').textContent = 'LLM: Fel';
+            document.getElementById('ollama-status').textContent = 'Ollama: Fel';
+        }
+    }
+
+    uppdateraStatus();
     </script>
 </body>
 </html>
