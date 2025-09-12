@@ -113,11 +113,18 @@
         try {
             const res = await fetch('/health');
             const data = await res.json();
-            document.getElementById('llm-status').textContent = `LLM-backend (${data.backend}): ${data.llm ? 'OK' : 'Fel'}`;
-            document.getElementById('ollama-status').textContent = `Ollama: ${data.ollama ? 'OK' : 'Fel'}`;
+            const llmText = data.llm
+                ? `LLM-backend (${data.backend}): OK`
+                : `LLM-backend (${data.backend}): Fel - ${data.llm_error || ''}`;
+            const ollamaText = data.ollama
+                ? 'Ollama: OK'
+                : `Ollama: Fel - ${data.ollama_error || ''}`;
+            document.getElementById('llm-status').textContent = llmText;
+            document.getElementById('ollama-status').textContent = ollamaText;
         } catch (err) {
-            document.getElementById('llm-status').textContent = 'LLM: Fel';
-            document.getElementById('ollama-status').textContent = 'Ollama: Fel';
+            const msg = err.message || err;
+            document.getElementById('llm-status').textContent = `LLM: Fel - ${msg}`;
+            document.getElementById('ollama-status').textContent = `Ollama: Fel - ${msg}`;
         }
     }
 
