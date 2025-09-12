@@ -15,11 +15,23 @@ os.makedirs(STORE_DIR, exist_ok=True); os.makedirs(DOCS_DIR, exist_ok=True)
 
 _embedder = TextEmbedding(model_name=settings.EMBEDDING_MODEL)
 
+
+def _get_embedding_dim() -> int:
+    models = TextEmbedding.list_supported_models()
+    for m in models:
+        if m["model"].lower() == settings.EMBEDDING_MODEL.lower():
+            return m["dim"]
+    return len(next(_embedder.embed(["dimension probe"])))
+
+
+_EMBEDDING_DIM = _get_embedding_dim()
+
+
 def _load_store():
     if EMB_PATH.exists():
         embeddings = np.load(EMB_PATH)
     else:
-        embeddings = np.zeros((0, _embedder.embedding_dimension), dtype=np.float32)
+        embeddings = np.zeros((0, _EMBEDDING_DIM), dtype=np.float32)
     if IDS_PATH.exists():
         with open(IDS_PATH, "r") as f:
             ids = json.load(f)
