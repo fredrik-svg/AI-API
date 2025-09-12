@@ -1,5 +1,4 @@
 import re, requests, bs4, pathlib
-import trafilatura
 from pypdf import PdfReader
 from docx import Document
 
@@ -9,14 +8,9 @@ def clean_text(text: str) -> str:
     return text
 
 def extract_from_url(url: str) -> str:
-    downloaded = trafilatura.fetch_url(url)
-    if downloaded:
-        txt = trafilatura.extract(downloaded, include_links=False, include_tables=False)
-        if txt:
-            return clean_text(txt)
-    # fallback: raw HTML text
-    html = requests.get(url, timeout=30).text
-    soup = bs4.BeautifulSoup(html, "lxml")
+    resp = requests.get(url, timeout=30)
+    resp.raise_for_status()
+    soup = bs4.BeautifulSoup(resp.text, "lxml")
     return clean_text(soup.get_text(" "))
 
 def extract_from_file(path: str) -> str:

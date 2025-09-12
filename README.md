@@ -1,7 +1,7 @@
 # raspi-llm-rag-api
 
-Minimal LLM + RAG API for Raspberry Pi 5. Designed to be managed via GitHub, with:
-- **Small LLM** (local via `llama-cpp-python`) or **Ollama**/**OpenAI** as fallback
+ Minimal LLM + RAG API for Raspberry Pi 5. Designed to be managed via GitHub, with:
+- **Small LLM** (local via optional `llama-cpp-python`) or **Ollama**/**OpenAI** as fallback
 - **RAG** ingestion for URLs & documents (PDF/DOCX/TXT/HTML)
 - **FastAPI** endpoints for ingest, search & chat
 
@@ -31,8 +31,8 @@ bash scripts/run.sh
 ```
 
 ### Env config
-Copy `.env.example` to `.env` and adjust:
-- `LLM_BACKEND`: `llama_cpp` (default), `ollama`, or `openai`
+Ensure a `.env` file exists (create from `.env.example` if provided) and adjust:
+- `LLM_BACKEND`: `llama_cpp` (requires manual install of `llama-cpp-python`), `ollama`, or `openai`
 - `LLAMA_MODEL_PATH`: path to your `.gguf` model file
 - `OLLAMA_MODEL`: e.g. `qwen2.5:1.5b-instruct` (if you run `ollama serve` on the Pi)
 - `OPENAI_API_KEY`: only if you want cloud fallback
@@ -45,8 +45,8 @@ Copy `.env.example` to `.env` and adjust:
 
 ### Notes for Raspberry Pi
 - Prefer **small** GGUF models (≤1.5–3B params, Q4 quant), e.g. Qwen2.5-1.5B-Instruct or Phi-3-mini.
-- If `llama-cpp-python` wheel fails to install, pip will compile; that can take a while on Pi.
-- Alternative: run **Ollama** on Pi (`curl -fsSL https://ollama.com/install.sh | sh`) and set `LLM_BACKEND=ollama`.
+- To use the local backend you must separately `pip install llama-cpp-python`.
+- Otherwise, run **Ollama** on Pi (`curl -fsSL https://ollama.com/install.sh | sh`) and set `LLM_BACKEND=ollama`.
 
 ### GitHub
 This repo is structured to be pushed directly to GitHub. Typical flow:
