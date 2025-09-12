@@ -10,6 +10,7 @@ Minimal LLM + RAG API for Raspberry Pi 5. Designed to be managed via GitHub, wit
 - Embeddings with **fastembed** (`bge-m3`, multilingual, CPU-friendly)
 - Simple, local vector store (NumPy) + SQLite for metadata
 - Clean API: `/ingest/url`, `/ingest/file`, `/search`, `/chat`
+- Swedish Q&A out of the box – ask in Swedish and receive answers in Swedish
 
 ## Quickstart (Raspberry Pi 5)
 ```bash
