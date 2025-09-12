@@ -32,29 +32,43 @@ def health():
     """Simple health endpoint that also reports LLM and Ollama status."""
     # Check Ollama availability
     ollama_ok = False
+    ollama_error = ""
     try:
         r = requests.get(f"{settings.OLLAMA_HOST}/api/tags", timeout=5)
         r.raise_for_status()
         ollama_ok = True
-    except requests.RequestException:
+    except requests.RequestException as e:
         ollama_ok = False
+        ollama_error = str(e)
 
     # Determine LLM status depending on backend
     backend = settings.LLM_BACKEND.lower()
     llm_ok = True
+    llm_error = ""
     if backend == "ollama":
         llm_ok = ollama_ok
+        if not llm_ok:
+            llm_error = ollama_error or "Ollama otillgänglig"
     elif backend == "openai":
         llm_ok = bool(settings.OPENAI_API_KEY)
+        if not llm_ok:
+            llm_error = "OPENAI_API_KEY saknas"
     else:
         model_path = pathlib.Path(settings.LLAMA_MODEL_PATH)
-        llm_ok = model_path.exists() and importlib.util.find_spec("llama_cpp") is not None
+        if not model_path.exists():
+            llm_ok = False
+            llm_error = f"LLAMA-model saknas: {settings.LLAMA_MODEL_PATH}"
+        elif importlib.util.find_spec("llama_cpp") is None:
+            llm_ok = False
+            llm_error = "llama_cpp inte installerat"
 
     return {
-        "status": "ok",
+        "status": "ok" if (llm_ok and ollama_ok) else "error",
         "backend": settings.LLM_BACKEND,
         "llm": llm_ok,
         "ollama": ollama_ok,
+        "llm_error": llm_error,
+        "ollama_error": ollama_error,
     }
 
 @app.post("/ingest/url")
