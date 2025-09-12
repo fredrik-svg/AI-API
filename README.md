@@ -7,7 +7,7 @@
 
 ## Features
 - Runs on Raspberry Pi 5 (ARM64)
-- Embeddings with **fastembed** (`BAAI/bge-m3`, multilingual, CPU-friendly)
+ - Embeddings with **fastembed** (`BAAI/bge-small-en-v1.5`, CPU-friendly)
 - Simple, local vector store (NumPy) + SQLite for metadata
 - Clean API: `/ingest/url`, `/ingest/file`, `/search`, `/chat`
 - Swedish Q&A out of the box – ask in Swedish and receive answers in Swedish
