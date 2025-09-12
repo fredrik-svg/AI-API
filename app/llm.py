@@ -7,7 +7,14 @@ _llm = None
 def _llama():
     global _llm
     if _llm is None:
-        from llama_cpp import Llama
+        try:
+            from llama_cpp import Llama
+        except ImportError as e:
+            raise ImportError(
+                "llama-cpp-python is required for the 'llama_cpp' backend. "
+                "Install it with `pip install llama-cpp-python` or set "
+                "LLM_BACKEND to 'ollama' or 'openai'."
+            ) from e
         _llm = Llama(model_path=settings.LLAMA_MODEL_PATH, n_ctx=4096, n_threads=4)
     return _llm
 
