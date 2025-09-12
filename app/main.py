@@ -3,6 +3,8 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from typing import Optional
 import pathlib, shutil
+import importlib.util
+import requests
 
 from .settings import settings
 from .rag import ingest_url, ingest_file, search, DOCS_DIR
@@ -27,7 +29,33 @@ def frontend():
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "backend": settings.LLM_BACKEND}
+    """Simple health endpoint that also reports LLM and Ollama status."""
+    # Check Ollama availability
+    ollama_ok = False
+    try:
+        r = requests.get(f"{settings.OLLAMA_HOST}/api/tags", timeout=5)
+        r.raise_for_status()
+        ollama_ok = True
+    except requests.RequestException:
+        ollama_ok = False
+
+    # Determine LLM status depending on backend
+    backend = settings.LLM_BACKEND.lower()
+    llm_ok = True
+    if backend == "ollama":
+        llm_ok = ollama_ok
+    elif backend == "openai":
+        llm_ok = bool(settings.OPENAI_API_KEY)
+    else:
+        model_path = pathlib.Path(settings.LLAMA_MODEL_PATH)
+        llm_ok = model_path.exists() and importlib.util.find_spec("llama_cpp") is not None
+
+    return {
+        "status": "ok",
+        "backend": settings.LLM_BACKEND,
+        "llm": llm_ok,
+        "ollama": ollama_ok,
+    }
 
 @app.post("/ingest/url")
 def ingest_url_endpoint(payload: dict):
