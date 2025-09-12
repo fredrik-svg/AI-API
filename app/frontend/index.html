@@ -34,6 +34,15 @@
         <div id="file-status"></div>
     </section>
 
+    <section>
+        <h2>Chat</h2>
+        <div id="chat-log" style="white-space: pre-wrap;"></div>
+        <form id="chat-form">
+            <input type="text" id="chat-input" placeholder="Ställ en fråga..." />
+            <button type="submit">Skicka</button>
+        </form>
+    </section>
+
     <script>
     document.getElementById('search-form').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -73,6 +82,25 @@
         });
         const data = await res.json();
         document.getElementById('file-status').textContent = JSON.stringify(data);
+    });
+
+    const chatForm = document.getElementById('chat-form');
+    const chatInput = document.getElementById('chat-input');
+    const chatLog = document.getElementById('chat-log');
+
+    chatForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const msg = chatInput.value.trim();
+        if (!msg) return;
+        chatLog.innerHTML += `<div><strong>Du:</strong> ${msg}</div>`;
+        chatInput.value = '';
+        const res = await fetch('/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: msg })
+        });
+        const data = await res.json();
+        chatLog.innerHTML += `<div><strong>LLM:</strong> ${data.answer}</div>`;
     });
     </script>
 </body>
