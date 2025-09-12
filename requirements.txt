@@ -8,6 +8,11 @@ lxml==5.3.0
 pypdf==5.0.1
 python-docx==1.1.2
 llama-cpp-python==0.2.90
-numpy==2.1.1
+# Use a NumPy version compatible with both llama-cpp-python and fastembed.
+# The previous pin to NumPy 2.x conflicted with fastembed, which requires
+# NumPy versions below 2. Pinning to the latest 1.x release resolves the
+# dependency issues while remaining within the supported range of
+# llama-cpp-python.
+numpy==1.26.4
 fastembed==0.3.6
 pydantic==2.9.2
