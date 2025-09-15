@@ -30,13 +30,20 @@ def frontend():
 @app.get("/health")
 def health():
     """Simple health endpoint that also reports LLM and Ollama status."""
-    # Check Ollama availability
+    # Check Ollama availability and model status
     ollama_ok = False
     ollama_error = ""
+    ollama_model = False
+    ollama_model_error = ""
     try:
         r = requests.get(f"{settings.OLLAMA_HOST}/api/tags", timeout=5)
         r.raise_for_status()
         ollama_ok = True
+        tags = r.json()
+        models = tags.get("models", [])
+        ollama_model = any(m.get("name") == settings.OLLAMA_MODEL for m in models)
+        if not ollama_model:
+            ollama_model_error = f"Modell saknas: {settings.OLLAMA_MODEL}"
     except requests.RequestException as e:
         ollama_ok = False
         ollama_error = str(e)
@@ -46,9 +53,12 @@ def health():
     llm_ok = True
     llm_error = ""
     if backend == "ollama":
-        llm_ok = ollama_ok
+        llm_ok = ollama_ok and ollama_model
         if not llm_ok:
-            llm_error = ollama_error or "Ollama otillgänglig"
+            if not ollama_ok:
+                llm_error = ollama_error or "Ollama otillgänglig"
+            elif not ollama_model:
+                llm_error = ollama_model_error or "Ollama-modell saknas"
     elif backend == "openai":
         llm_ok = bool(settings.OPENAI_API_KEY)
         if not llm_ok:
@@ -67,8 +77,11 @@ def health():
         "backend": settings.LLM_BACKEND,
         "llm": llm_ok,
         "ollama": ollama_ok,
+        "ollama_model": ollama_model,
+        "ollama_model_name": settings.OLLAMA_MODEL,
         "llm_error": llm_error,
         "ollama_error": ollama_error,
+        "ollama_model_error": ollama_model_error,
     }
 
 @app.post("/ingest/url")
