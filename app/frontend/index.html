@@ -11,6 +11,7 @@
         <h2>Status</h2>
         <div id="llm-status">LLM: ok?</div>
         <div id="ollama-status">Ollama: ok?</div>
+        <div id="ollama-model-status">Ollama-modell: ok?</div>
     </section>
 
     <section>
@@ -117,14 +118,19 @@
                 ? `LLM-backend (${data.backend}): OK`
                 : `LLM-backend (${data.backend}): Fel - ${data.llm_error || ''}`;
             const ollamaText = data.ollama
-                ? 'Ollama: OK'
-                : `Ollama: Fel - ${data.ollama_error || ''}`;
+                ? 'Ollama-server: OK'
+                : `Ollama-server: Fel - ${data.ollama_error || ''}`;
+            const ollamaModelText = data.ollama_model
+                ? `Ollama-modell (${data.ollama_model_name}): OK`
+                : `Ollama-modell (${data.ollama_model_name}): Fel - ${data.ollama_model_error || ''}`;
             document.getElementById('llm-status').textContent = llmText;
             document.getElementById('ollama-status').textContent = ollamaText;
+            document.getElementById('ollama-model-status').textContent = ollamaModelText;
         } catch (err) {
             const msg = err.message || err;
             document.getElementById('llm-status').textContent = `LLM: Fel - ${msg}`;
-            document.getElementById('ollama-status').textContent = `Ollama: Fel - ${msg}`;
+            document.getElementById('ollama-status').textContent = `Ollama-server: Fel - ${msg}`;
+            document.getElementById('ollama-model-status').textContent = `Ollama-modell: Fel - ${msg}`;
         }
     }
 
