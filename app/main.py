@@ -38,13 +38,15 @@ def health():
     try:
         r = requests.get(f"{settings.OLLAMA_HOST}/api/tags", timeout=5)
         r.raise_for_status()
-        ollama_ok = True
         tags = r.json()
+        if not isinstance(tags, dict):
+            raise ValueError("Unexpected JSON structure")
+        ollama_ok = True
         models = tags.get("models", [])
         ollama_model = any(m.get("name") == settings.OLLAMA_MODEL for m in models)
         if not ollama_model:
             ollama_model_error = f"Modell saknas: {settings.OLLAMA_MODEL}"
-    except requests.RequestException as e:
+    except (requests.RequestException, ValueError, AttributeError) as e:
         ollama_ok = False
         ollama_error = str(e)
 
